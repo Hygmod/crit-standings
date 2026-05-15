@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>2026 Chico Airport Crit Standings</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="standings-shell">
+      <header class="standings-header">
+        <p class="eyebrow">Chico Airport Criterium</p>
+        <h1>2026 Crit Standings</h1>
+        <p class="meta" id="updated-at">Loading standings...</p>
+      </header>
+
+      <nav class="category-tabs" id="category-tabs" aria-label="Race categories"></nav>
+
+      <section class="notice" aria-label="Volunteer eligibility note">
+        <strong>*</strong> Rider has fewer than two volunteer days recorded.
+      </section>
+
+      <section class="table-region" aria-live="polite">
+        <h2 id="category-title"></h2>
+        <div class="table-scroll">
+          <table>
+            <thead id="standings-head"></thead>
+            <tbody id="standings-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>

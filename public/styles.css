@@ -1,0 +1,164 @@
+:root {
+  color-scheme: light;
+  --ink: #1f252b;
+  --muted: #5c6670;
+  --line: #d7dde3;
+  --surface: #ffffff;
+  --accent: #b8242f;
+  --accent-dark: #7d1720;
+  --track: #f2f5f7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.standings-shell {
+  width: min(100%, 1100px);
+  margin: 0 auto;
+  padding: 18px 12px 24px;
+}
+
+.standings-header {
+  border-bottom: 3px solid var(--ink);
+  padding-bottom: 12px;
+}
+
+.eyebrow,
+.meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+h1,
+h2 {
+  margin: 4px 0;
+  font-family: Georgia, "Times New Roman", serif;
+  letter-spacing: 0;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.4rem;
+}
+
+.category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.category-tab {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: var(--track);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  min-height: 38px;
+  padding: 8px 12px;
+}
+
+.category-tab[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent-dark);
+  color: white;
+}
+
+.notice {
+  border-left: 4px solid var(--accent);
+  color: var(--muted);
+  margin-bottom: 14px;
+  padding: 8px 10px;
+  background: #fff7f7;
+}
+
+.table-region {
+  width: 100%;
+}
+
+.table-scroll {
+  border: 1px solid var(--line);
+  overflow-x: auto;
+  width: 100%;
+}
+
+table {
+  border-collapse: collapse;
+  min-width: 720px;
+  width: 100%;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  padding: 9px 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  background: var(--ink);
+  color: white;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+tbody tr:nth-child(even) {
+  background: var(--track);
+}
+
+.rank,
+.number,
+.points,
+.volunteer,
+.race-result {
+  text-align: right;
+}
+
+.rider {
+  font-weight: 700;
+}
+
+.empty {
+  color: var(--muted);
+  padding: 20px;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .standings-shell {
+    padding: 14px 8px 20px;
+  }
+
+  h1 {
+    font-size: 1.55rem;
+  }
+
+  .category-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .category-tab {
+    width: 100%;
+  }
+
+  th,
+  td {
+    padding: 8px;
+  }
+}
