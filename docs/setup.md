@@ -16,7 +16,7 @@ The Google Sheet stays private; GitHub Actions reads it with a Google service ac
 In `Hygmod/crit-standings`:
 
 1. Add repository secret `GOOGLE_SERVICE_ACCOUNT_JSON` with the full service account key JSON.
-2. Add repository variable `SPREADSHEET_ID` with `1ai6-jlUnUMPKYzpxT1WLkY0tlkkHIxASapgZF2WH1vw`.
+2. Add repository variable `GOOGLE_SHEET_ID` with `1ai6-jlUnUMPKYzpxT1WLkY0tlkkHIxASapgZF2WH1vw`.
 3. Enable GitHub Pages with source set to GitHub Actions.
 4. Run the `Deploy standings` workflow manually once.
 
