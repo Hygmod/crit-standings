@@ -1,8 +1,8 @@
 # Crit standings
 
-Static standings widget for the 2026 Chico Airport Criterium.
+Static standings page for the 2026 Chico Airport Criterium.
 
-The source Google Sheet remains private. A scheduled GitHub Actions workflow reads it with a Google service account, generates `public/data/standings.json`, and deploys the `public/` folder to GitHub Pages for embedding on the Chico Cycling Team Weebly page.
+The source Google Sheet remains private. A scheduled GitHub Actions workflow reads it with a Google service account, generates `public/data/standings.json`, and deploys the `public/` folder to GitHub Pages. The Chico Cycling Team Weebly page can link to the published standings page from the existing Crit Standings button.
 
 ## Local development
 
@@ -22,4 +22,4 @@ Then run:
 npm run build:data
 ```
 
-See [docs/setup.md](docs/setup.md) for the production setup and Weebly embed.
+See [docs/setup.md](docs/setup.md) for the production setup and Weebly link.

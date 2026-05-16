@@ -1,6 +1,6 @@
 # Airport Crit standings setup
 
-This repo publishes a static standings widget for the Chico Cycling Team airport crit page.
+This repo publishes a static standings page for the Chico Cycling Team airport crit page.
 The Google Sheet stays private; GitHub Actions reads it with a Google service account and deploys only the generated public standings data to GitHub Pages.
 
 ## One-time Google setup
@@ -22,20 +22,15 @@ In `Hygmod/crit-standings`:
 
 The workflow also runs every 15 minutes.
 
-## Weebly embed
+## Weebly link
 
-After the first successful Pages deploy, add an Embed Code block on `airport-crit.html`:
+After the first successful Pages deploy, point the existing `2026 Crit Standings` button on `airport-crit.html` to:
 
-```html
-<iframe
-  src="https://hygmod.github.io/crit-standings/"
-  title="2026 Chico Airport Crit standings"
-  style="width:100%;min-height:760px;border:0;"
-  loading="lazy"
-></iframe>
+```text
+https://hygmod.github.io/crit-standings/
 ```
 
-The Weebly page should not need edits after that unless the embed location or styling changes.
+The Weebly page should not need edits after that unless the linked standings URL changes.
 
 ## Public-data rules
 
