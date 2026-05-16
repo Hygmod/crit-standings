@@ -1,8 +1,5 @@
-const tabs = document.querySelector("#category-tabs");
-const title = document.querySelector("#category-title");
 const updatedAt = document.querySelector("#updated-at");
-const head = document.querySelector("#standings-head");
-const body = document.querySelector("#standings-body");
+const tables = document.querySelector("#standings-tables");
 
 const response = await fetch(`data/standings.json?cache=${Date.now()}`);
 if (!response.ok) {
@@ -10,43 +7,39 @@ if (!response.ok) {
 }
 
 const standings = await response.json();
-const populatedCategories = standings.categories.filter((category) => category.riders.length > 0);
-const categories = populatedCategories.length > 0 ? populatedCategories : standings.categories;
-let activeCategory = categories[0];
 
 updatedAt.textContent = `Updated ${formatDateTime(standings.generatedAt)}`;
-renderTabs();
-renderCategory(activeCategory);
+renderStandings(standings.categories);
 
-function renderTabs() {
-  tabs.replaceChildren(
-    ...categories.map((category) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "category-tab";
-      button.textContent = category.label;
-      button.setAttribute("aria-pressed", String(category.id === activeCategory.id));
-      button.addEventListener("click", () => {
-        activeCategory = category;
-        renderTabs();
-        renderCategory(category);
-      });
-      return button;
-    })
-  );
+function renderStandings(categories) {
+  if (categories.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "empty";
+    empty.textContent = "No standings posted yet.";
+    tables.replaceChildren(empty);
+    return;
+  }
+
+  tables.replaceChildren(...categories.map(renderCategory));
 }
 
 function renderCategory(category) {
-  title.textContent = category.label;
-  const visibleDates = category.raceDates.filter((date) =>
-    category.riders.some((rider) => rider.results.some((result) => result.date === date && result.value))
-  );
+  const section = document.createElement("section");
+  section.className = "table-region";
 
-  head.innerHTML = "";
-  body.innerHTML = "";
+  const heading = document.createElement("h2");
+  heading.textContent = category.label;
 
+  const scroller = document.createElement("div");
+  scroller.className = "table-scroll";
+
+  const table = document.createElement("table");
+  const head = document.createElement("thead");
+  const body = document.createElement("tbody");
   const headerRow = document.createElement("tr");
-  ["Rank", "Rider", "#", "Points", "Vol", ...visibleDates].forEach((label) => {
+  const nameHeaders = category.firstNameOnly ? ["First Name"] : ["Last Name", "First Name"];
+
+  [...nameHeaders, "Racer #", "Total", "Vol", ...category.raceDates].forEach((label) => {
     const th = document.createElement("th");
     th.scope = "col";
     th.textContent = label;
@@ -54,32 +47,28 @@ function renderCategory(category) {
   });
   head.append(headerRow);
 
-  if (category.riders.length === 0) {
-    const row = document.createElement("tr");
-    const cell = document.createElement("td");
-    cell.colSpan = 5 + visibleDates.length;
-    cell.className = "empty";
-    cell.textContent = "No standings posted yet.";
-    row.append(cell);
-    body.append(row);
-    return;
-  }
-
   category.riders.forEach((rider) => {
     const row = document.createElement("tr");
-    addCell(row, rider.rank, "rank");
-    addCell(row, `${rider.displayName}${rider.provisional ? "*" : ""}`, "rider");
+    if (!category.firstNameOnly) {
+      addCell(row, rider.lastName || "-", "name");
+    }
+    addCell(row, `${rider.firstName || rider.displayName}${rider.provisional ? "*" : ""}`, "name");
     addCell(row, rider.raceNumber || "-", "number");
     addCell(row, rider.total, "points");
     addCell(row, rider.volunteerDays, "volunteer");
 
-    visibleDates.forEach((date) => {
+    category.raceDates.forEach((date) => {
       const result = rider.results.find((entry) => entry.date === date);
       addCell(row, result?.value || "-", "race-result");
     });
 
     body.append(row);
   });
+
+  table.append(head, body);
+  scroller.append(table);
+  section.append(heading, scroller);
+  return section;
 }
 
 function addCell(row, value, className) {
