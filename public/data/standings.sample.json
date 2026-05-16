@@ -12,6 +12,8 @@
       "riders": [
         {
           "displayName": "Wil Gavato",
+          "firstName": "Wil",
+          "lastName": "Gavato",
           "raceNumber": "270",
           "total": 25,
           "volunteerDays": 2,
@@ -24,6 +26,8 @@
         },
         {
           "displayName": "Myles Villahermosa",
+          "firstName": "Myles",
+          "lastName": "Villahermosa",
           "raceNumber": "244",
           "total": 20,
           "volunteerDays": 0,
@@ -45,6 +49,8 @@
       "riders": [
         {
           "displayName": "Sam",
+          "firstName": "Sam",
+          "lastName": "",
           "raceNumber": "12",
           "total": 5,
           "volunteerDays": 2,
