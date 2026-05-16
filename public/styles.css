@@ -53,40 +53,16 @@ h2 {
   font-size: 1.4rem;
 }
 
-.category-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 14px 0;
-}
-
-.category-tab {
-  appearance: none;
-  border: 1px solid var(--line);
-  background: var(--track);
-  color: var(--ink);
-  cursor: pointer;
-  font: inherit;
-  font-weight: 700;
-  min-height: 38px;
-  padding: 8px 12px;
-}
-
-.category-tab[aria-pressed="true"] {
-  background: var(--accent);
-  border-color: var(--accent-dark);
-  color: white;
-}
-
 .notice {
   border-left: 4px solid var(--accent);
   color: var(--muted);
-  margin-bottom: 14px;
+  margin: 14px 0;
   padding: 8px 10px;
   background: #fff7f7;
 }
 
 .table-region {
+  margin-top: 22px;
   width: 100%;
 }
 
@@ -121,7 +97,6 @@ tbody tr:nth-child(even) {
   background: var(--track);
 }
 
-.rank,
 .number,
 .points,
 .volunteer,
@@ -129,7 +104,7 @@ tbody tr:nth-child(even) {
   text-align: right;
 }
 
-.rider {
+.name {
   font-weight: 700;
 }
 
@@ -146,15 +121,6 @@ tbody tr:nth-child(even) {
 
   h1 {
     font-size: 1.55rem;
-  }
-
-  .category-tabs {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .category-tab {
-    width: 100%;
   }
 
   th,
