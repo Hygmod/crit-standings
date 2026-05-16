@@ -3,7 +3,7 @@ import { createSign } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { CATEGORY_CONFIG, buildStandings } from "../src/standings.js";
 
-const spreadsheetId = process.env.SPREADSHEET_ID ?? "1ai6-jlUnUMPKYzpxT1WLkY0tlkkHIxASapgZF2WH1vw";
+const spreadsheetId = process.env.SPREADSHEET_ID ?? process.env.GOOGLE_SHEET_ID ?? "1ai6-jlUnUMPKYzpxT1WLkY0tlkkHIxASapgZF2WH1vw";
 const outputPath = resolve(process.env.STANDINGS_OUTPUT ?? "public/data/standings.json");
 
 const credentials = parseCredentials(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
