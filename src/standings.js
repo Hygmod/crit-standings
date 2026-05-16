@@ -10,7 +10,7 @@ export const CATEGORY_CONFIG = [
 export function buildStandings(valuesBySheet, generatedAt = new Date().toISOString()) {
   const categories = CATEGORY_CONFIG.map((config) =>
     buildCategory(config, valuesBySheet[config.sheetName] ?? [])
-  );
+  ).filter((category) => category.hasResults);
 
   return {
     event: "2026 Chico Airport Criterium",
@@ -39,6 +39,7 @@ export function buildCategory(config, rows) {
     sheetName: config.sheetName,
     firstNameOnly: Boolean(config.firstNameOnly),
     raceDates,
+    hasResults: riders.some(hasResult),
     riders
   };
 }
@@ -60,6 +61,8 @@ function buildRider(row, raceDates, config) {
 
   return {
     displayName,
+    firstName,
+    lastName: config.firstNameOnly ? "" : lastName,
     raceNumber,
     total,
     volunteerDays,
@@ -69,6 +72,15 @@ function buildRider(row, raceDates, config) {
       value: clean(row[offset + 5])
     }))
   };
+}
+
+function hasResult(rider) {
+  return rider.total > 0 || rider.results.some((result) => isResultValue(result.value));
+}
+
+function isResultValue(value) {
+  const cleaned = clean(value).toLowerCase();
+  return Boolean(cleaned) && cleaned !== "v";
 }
 
 function compareRiders(a, b) {
