@@ -5,9 +5,10 @@ function doGet(e) {
   try {
     return createJsonOutput_(getStandingsJson_(), e);
   } catch (error) {
+    console.error(error && error.stack ? error.stack : error);
     return createJsonOutput_(JSON.stringify({
-      error: error && error.message ? error.message : String(error)
-    }), e);
+      error: "Standings are temporarily unavailable."
+    }));
   }
 }
 

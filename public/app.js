@@ -11,8 +11,9 @@ try {
   updatedAt.textContent = `Updated ${formatDateTime(standings.generatedAt)}`;
   renderStandings(standings.categories);
 } catch (error) {
+  console.error(error);
   updatedAt.textContent = "Unable to load standings.";
-  renderError(error);
+  renderError();
 }
 
 async function loadStandings(url) {
@@ -78,10 +79,10 @@ function renderStandings(categories) {
   tables.replaceChildren(...categories.map(renderCategory));
 }
 
-function renderError(error) {
+function renderError() {
   const message = document.createElement("p");
   message.className = "empty";
-  message.textContent = error instanceof Error ? error.message : "Unable to load standings.";
+  message.textContent = "Standings are temporarily unavailable.";
   tables.replaceChildren(message);
 }
 
