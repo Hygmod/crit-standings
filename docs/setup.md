@@ -30,6 +30,12 @@ After the first successful Pages deploy, point the existing `2026 Crit Standings
 https://hygmod.github.io/crit-standings/
 ```
 
+The standings page links back to the Chico Cycling Team airport crit page:
+
+```text
+https://www.chicocyclingteam.org/airport-crit.html
+```
+
 The Weebly page should not need edits after that unless the linked standings URL changes.
 
 ## Public-data rules

@@ -27,8 +27,34 @@ body {
 }
 
 .standings-header {
+  align-items: end;
   border-bottom: 3px solid var(--ink);
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
   padding-bottom: 12px;
+}
+
+.header-copy {
+  min-width: 0;
+}
+
+.team-link {
+  border: 2px solid var(--accent);
+  color: var(--accent-dark);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 10px 12px;
+  text-decoration: none;
+}
+
+.team-link:focus,
+.team-link:hover {
+  background: var(--accent);
+  color: #ffffff;
 }
 
 .eyebrow,
@@ -125,6 +151,11 @@ tbody tr:nth-child(even) {
 @media (max-width: 640px) {
   .standings-shell {
     padding: 14px 8px 20px;
+  }
+
+  .standings-header {
+    align-items: start;
+    flex-direction: column;
   }
 
   h1 {
