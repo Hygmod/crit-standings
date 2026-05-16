@@ -1,15 +1,71 @@
+import { STANDINGS_DATA_URL } from "./config.js";
+
 const updatedAt = document.querySelector("#updated-at");
 const tables = document.querySelector("#standings-tables");
 
-const response = await fetch(`data/standings.json?cache=${Date.now()}`);
-if (!response.ok) {
-  throw new Error(`Unable to load standings: ${response.status}`);
+try {
+  const standings = await loadStandings(STANDINGS_DATA_URL);
+  if (standings.error) {
+    throw new Error(standings.error);
+  }
+  updatedAt.textContent = `Updated ${formatDateTime(standings.generatedAt)}`;
+  renderStandings(standings.categories);
+} catch (error) {
+  console.error(error);
+  updatedAt.textContent = "Unable to load standings.";
+  renderError();
 }
 
-const standings = await response.json();
+async function loadStandings(url) {
+  if (usesJsonp(url)) {
+    return loadJsonp(url);
+  }
+  const response = await fetch(withCacheBust(url));
+  if (!response.ok) {
+    throw new Error(`Unable to load standings: ${response.status}`);
+  }
+  return response.json();
+}
 
-updatedAt.textContent = `Updated ${formatDateTime(standings.generatedAt)}`;
-renderStandings(standings.categories);
+function usesJsonp(url) {
+  return /^https:\/\/script\.google\.com\//.test(url);
+}
+
+function loadJsonp(url) {
+  return new Promise((resolve, reject) => {
+    const callbackName = `__critStandings_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const script = document.createElement("script");
+    const timeout = window.setTimeout(() => {
+      cleanup();
+      reject(new Error("Timed out loading standings."));
+    }, 10000);
+
+    window[callbackName] = (payload) => {
+      cleanup();
+      resolve(payload);
+    };
+
+    script.onerror = () => {
+      cleanup();
+      reject(new Error("Unable to load standings."));
+    };
+    script.src = withCacheBust(url, { callback: callbackName });
+    document.head.append(script);
+
+    function cleanup() {
+      window.clearTimeout(timeout);
+      delete window[callbackName];
+      script.remove();
+    }
+  });
+}
+
+function withCacheBust(url, params = {}) {
+  const parsed = new URL(url, window.location.href);
+  Object.entries(params).forEach(([key, value]) => parsed.searchParams.set(key, value));
+  parsed.searchParams.set("cache", Date.now());
+  return parsed.toString();
+}
 
 function renderStandings(categories) {
   if (categories.length === 0) {
@@ -21,6 +77,13 @@ function renderStandings(categories) {
   }
 
   tables.replaceChildren(...categories.map(renderCategory));
+}
+
+function renderError() {
+  const message = document.createElement("p");
+  message.className = "empty";
+  message.textContent = "Standings are temporarily unavailable.";
+  tables.replaceChildren(message);
 }
 
 function renderCategory(category) {

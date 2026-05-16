@@ -1,4 +1,4 @@
-export const CATEGORY_CONFIG = [
+var CATEGORY_CONFIG = [
   { sheetName: "1/2/3", label: "Cat 1/2/3", color: "#f46524", textColor: "#1f252b" },
   { sheetName: "A's", label: "A's", color: "#5b95f9", textColor: "#1f252b" },
   { sheetName: "B's", label: "B's", color: "#78909c", textColor: "#1f252b" },
@@ -7,31 +7,36 @@ export const CATEGORY_CONFIG = [
   { sheetName: "Kids", label: "Kids", color: "#8bc34a", textColor: "#1f252b", firstNameOnly: true }
 ];
 
-export function buildStandings(valuesBySheet, generatedAt = new Date().toISOString()) {
-  const categories = CATEGORY_CONFIG.map((config) =>
-    buildCategory(config, valuesBySheet[config.sheetName] ?? [])
-  ).filter((category) => category.hasResults);
+function buildStandings(valuesBySheet, generatedAt) {
+  var timestamp = generatedAt || new Date().toISOString();
+  var categories = CATEGORY_CONFIG.map(function(config) {
+    return buildCategory(config, valuesBySheet[config.sheetName] || []);
+  }).filter(function(category) {
+    return category.hasResults;
+  });
 
   return {
     event: "2026 Chico Airport Criterium",
-    generatedAt,
+    generatedAt: timestamp,
     volunteerRequirement: 2,
-    categories
+    categories: categories
   };
 }
 
-export function buildCategory(config, rows) {
-  const headers = rows[3] ?? [];
-  const raceDates = headers.slice(5).filter(Boolean);
-  const riders = rows
+function buildCategory(config, rows) {
+  var headers = rows[3] || [];
+  var raceDates = headers.slice(5).filter(Boolean);
+  var riders = rows
     .slice(4)
-    .map((row) => buildRider(row, raceDates, config))
+    .map(function(row) {
+      return buildRider(row, raceDates, config);
+    })
     .filter(Boolean)
     .sort(compareRiders)
-    .map((rider, index, sorted) => ({
-      ...rider,
-      rank: rankFor(index, sorted)
-    }));
+    .map(function(rider, index, sorted) {
+      rider.rank = rankFor(index, sorted);
+      return rider;
+    });
 
   return {
     id: slugify(config.label),
@@ -40,48 +45,52 @@ export function buildCategory(config, rows) {
     color: config.color,
     textColor: config.textColor,
     firstNameOnly: Boolean(config.firstNameOnly),
-    raceDates,
+    raceDates: raceDates,
     hasResults: riders.some(hasResult),
-    riders
+    riders: riders
   };
 }
 
 function buildRider(row, raceDates, config) {
-  const lastName = clean(row[0]);
-  const firstName = clean(row[1]);
-  const raceNumber = clean(row[2]);
+  var lastName = clean(row[0]);
+  var firstName = clean(row[1]);
+  var raceNumber = clean(row[2]);
 
   if (!firstName && !lastName && !raceNumber) {
     return null;
   }
 
-  const total = toNumber(row[3]);
-  const volunteerDays = toNumber(row[4]);
-  const displayName = config.firstNameOnly
+  var total = toNumber(row[3]);
+  var volunteerDays = toNumber(row[4]);
+  var displayName = config.firstNameOnly
     ? firstName || "Rider"
     : [firstName, lastName].filter(Boolean).join(" ");
 
   return {
-    displayName,
-    firstName,
+    displayName: displayName,
+    firstName: firstName,
     lastName: config.firstNameOnly ? "" : lastName,
-    raceNumber,
-    total,
-    volunteerDays,
+    raceNumber: raceNumber,
+    total: total,
+    volunteerDays: volunteerDays,
     provisional: volunteerDays < 2,
-    results: raceDates.map((date, offset) => ({
-      date,
-      value: clean(row[offset + 5])
-    }))
+    results: raceDates.map(function(date, offset) {
+      return {
+        date: date,
+        value: clean(row[offset + 5])
+      };
+    })
   };
 }
 
 function hasResult(rider) {
-  return rider.total > 0 || rider.results.some((result) => isResultValue(result.value));
+  return rider.total > 0 || rider.results.some(function(result) {
+    return isResultValue(result.value);
+  });
 }
 
 function isResultValue(value) {
-  const cleaned = clean(value).toLowerCase();
+  var cleaned = clean(value).toLowerCase();
   return Boolean(cleaned) && cleaned !== "v";
 }
 
@@ -93,17 +102,17 @@ function compareRiders(a, b) {
 
 function rankFor(index, riders) {
   if (index === 0) return 1;
-  const current = riders[index];
-  const previous = riders[index - 1];
+  var current = riders[index];
+  var previous = riders[index - 1];
   return current.total === previous.total ? previous.rank : index + 1;
 }
 
 function clean(value) {
-  return String(value ?? "").trim();
+  return String(value == null ? "" : value).trim();
 }
 
 function toNumber(value) {
-  const parsed = Number.parseFloat(clean(value));
+  var parsed = Number.parseFloat(clean(value));
   return Number.isFinite(parsed) ? parsed : 0;
 }
 

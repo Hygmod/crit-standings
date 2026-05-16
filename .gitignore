@@ -1,4 +1,5 @@
 node_modules/
 .npm-cache/
 .env
+.clasprc.json
 public/data/standings.json
