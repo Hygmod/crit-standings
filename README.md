@@ -14,7 +14,7 @@ npm test
 To generate live standings locally, set:
 
 - `GOOGLE_SERVICE_ACCOUNT_JSON`: full Google service account JSON with viewer access to the Sheet
-- `GOOGLE_SHEET_ID` or `SPREADSHEET_ID`: optional override; defaults to the 2026 Airport Crit Roster Sheet
+- `GOOGLE_SHEET_ID`: optional override; defaults to the 2026 Airport Crit Roster Sheet
 
 Then run:
 
