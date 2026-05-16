@@ -1,10 +1,10 @@
 export const CATEGORY_CONFIG = [
-  { sheetName: "1/2/3", label: "Cat 1/2/3" },
-  { sheetName: "A's", label: "A's" },
-  { sheetName: "B's", label: "B's" },
-  { sheetName: "Women", label: "Women" },
-  { sheetName: "Masters", label: "Masters" },
-  { sheetName: "Kids", label: "Kids", firstNameOnly: true }
+  { sheetName: "1/2/3", label: "Cat 1/2/3", color: "#f46524", textColor: "#1f252b" },
+  { sheetName: "A's", label: "A's", color: "#5b95f9", textColor: "#1f252b" },
+  { sheetName: "B's", label: "B's", color: "#78909c", textColor: "#1f252b" },
+  { sheetName: "Women", label: "Women", color: "#ef6767", textColor: "#1f252b" },
+  { sheetName: "Masters", label: "Masters", color: "#f7cb4d", textColor: "#1f252b" },
+  { sheetName: "Kids", label: "Kids", color: "#8bc34a", textColor: "#1f252b", firstNameOnly: true }
 ];
 
 export function buildStandings(valuesBySheet, generatedAt = new Date().toISOString()) {
@@ -37,6 +37,8 @@ export function buildCategory(config, rows) {
     id: slugify(config.label),
     label: config.label,
     sheetName: config.sheetName,
+    color: config.color,
+    textColor: config.textColor,
     firstNameOnly: Boolean(config.firstNameOnly),
     raceDates,
     hasResults: riders.some(hasResult),

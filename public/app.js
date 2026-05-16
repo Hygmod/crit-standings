@@ -26,6 +26,12 @@ function renderStandings(categories) {
 function renderCategory(category) {
   const section = document.createElement("section");
   section.className = "table-region";
+  if (category.color) {
+    section.style.setProperty("--category-color", category.color);
+  }
+  if (category.textColor) {
+    section.style.setProperty("--category-text-color", category.textColor);
+  }
 
   const heading = document.createElement("h2");
   heading.textContent = category.label;

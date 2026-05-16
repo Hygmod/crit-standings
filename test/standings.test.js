@@ -16,6 +16,8 @@ test("sorts riders by points and marks missing volunteer days", () => {
   }, "2026-05-15T00:00:00.000Z");
 
   const category = standings.categories.find((item) => item.sheetName === "1/2/3");
+  assert.equal(category.color, "#f46524");
+  assert.equal(category.textColor, "#1f252b");
   assert.equal(category.riders[0].displayName, "Wil Gavato");
   assert.equal(category.riders[0].provisional, false);
   assert.equal(category.riders[1].displayName, "Myles Villahermosa");
