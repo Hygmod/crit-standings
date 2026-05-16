@@ -1,0 +1,64 @@
+{
+  "event": "2026 Chico Airport Criterium",
+  "generatedAt": "2026-05-15T23:00:00.000Z",
+  "volunteerRequirement": 2,
+  "categories": [
+    {
+      "id": "cat-1-2-3",
+      "label": "Cat 1/2/3",
+      "sheetName": "1/2/3",
+      "firstNameOnly": false,
+      "raceDates": ["5/5", "5/12"],
+      "riders": [
+        {
+          "displayName": "Wil Gavato",
+          "firstName": "Wil",
+          "lastName": "Gavato",
+          "raceNumber": "270",
+          "total": 25,
+          "volunteerDays": 2,
+          "provisional": false,
+          "results": [
+            { "date": "5/5", "value": "" },
+            { "date": "5/12", "value": "25" }
+          ],
+          "rank": 1
+        },
+        {
+          "displayName": "Myles Villahermosa",
+          "firstName": "Myles",
+          "lastName": "Villahermosa",
+          "raceNumber": "244",
+          "total": 20,
+          "volunteerDays": 0,
+          "provisional": true,
+          "results": [
+            { "date": "5/5", "value": "" },
+            { "date": "5/12", "value": "20" }
+          ],
+          "rank": 2
+        }
+      ]
+    },
+    {
+      "id": "kids",
+      "label": "Kids",
+      "sheetName": "Kids",
+      "firstNameOnly": true,
+      "raceDates": ["5/5"],
+      "riders": [
+        {
+          "displayName": "Sam",
+          "firstName": "Sam",
+          "lastName": "",
+          "raceNumber": "12",
+          "total": 5,
+          "volunteerDays": 2,
+          "provisional": false,
+          "results": [{ "date": "5/5", "value": "5" }],
+          "rank": 1
+        }
+      ]
+    }
+  ]
+}
