@@ -1,26 +1,76 @@
 # Airport Crit standings setup
 
 This repo publishes a static standings page for the Chico Cycling Team airport crit page.
-The Google Sheet stays private; GitHub Actions reads it with a Google service account and deploys only the generated public standings data to GitHub Pages.
+The Google Sheet stays private. A Google Apps Script web app runs as the Sheet owner, reads the Sheet at request time, and returns public JSON to the static GitHub Pages frontend.
 
-## One-time Google setup
+## One-time Google Apps Script setup
 
-1. Create or choose a Google Cloud project.
-2. Enable the Google Sheets API.
-3. Create a service account.
-4. Create a JSON key for that service account.
-5. Share the private standings Sheet with the service account email as a viewer.
+These steps happen outside this repo because they require your Google account and the private standings Sheet.
+
+1. Install clasp if you do not already have it:
+
+   ```sh
+   npm install @google/clasp -g
+   ```
+
+2. Enable the Apps Script API for your Google account at:
+
+   ```text
+   https://script.google.com/home/usersettings
+   ```
+
+3. Log in with the Google account that owns or can edit the standings Sheet:
+
+   ```sh
+   clasp login
+   ```
+
+4. In the standings Sheet, open Extensions > Apps Script. Create the bound script project there and rename it to `Crit Standings Web App`.
+
+5. In the Apps Script editor, open Project Settings and copy the Script ID.
+
+6. Copy `.clasp.example.json` to `.clasp.json`, replace `PASTE_SCRIPT_ID_HERE` with the real Script ID, and keep `"rootDir": "apps-script"`.
+
+7. Commit `.clasp.json` after it contains the real `scriptId`; it is safe to commit. Do not commit `.clasprc.json`; that OAuth token is ignored by git.
+
+8. Upload the repo source to Apps Script:
+
+   ```sh
+   clasp push
+   ```
+
+9. Open the script editor and run `doGet` once from the editor. Approve the requested Sheet access.
+
+10. Deploy the web app:
+
+   ```sh
+   clasp version "Initial web app"
+   clasp deploy <version> "Initial web app"
+   ```
+
+   In the Apps Script deployment UI, confirm the deployment is a Web app, executes as you, and allows anyone to access it.
+
+11. Copy the deployed `/exec` URL. Do not use the `/dev` test URL for the public site.
+
+12. Replace `STANDINGS_DATA_URL` in `public/config.js` with the `/exec` URL and commit that change.
+
+For later Apps Script changes, keep the same deployment ID so the public URL does not change:
+
+```sh
+clasp push
+clasp version "Describe the change"
+clasp deployments
+clasp redeploy <deploymentId> <version> "Describe the change"
+```
 
 ## One-time GitHub setup
 
 In `Hygmod/crit-standings`:
 
-1. Add repository secret `GOOGLE_SERVICE_ACCOUNT_JSON` with the full service account key JSON.
-2. Add repository variable `GOOGLE_SHEET_ID` with `1ai6-jlUnUMPKYzpxT1WLkY0tlkkHIxASapgZF2WH1vw`.
-3. Enable GitHub Pages with source set to GitHub Actions.
-4. Run the `Deploy standings` workflow manually once.
+1. Enable GitHub Pages with source set to GitHub Actions.
+2. Run the `Deploy standings` workflow manually once after `public/config.js` contains the real Apps Script `/exec` URL.
 
-The workflow also runs every 15 minutes.
+The workflow deploys only static files from `public/`. It does not read the private Sheet and it has no schedule.
 
 ## Weebly link
 

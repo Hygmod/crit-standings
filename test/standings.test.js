@@ -1,6 +1,22 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildStandings } from "../src/standings.js";
+import { readFileSync } from "node:fs";
+import vm from "node:vm";
+
+const { buildStandings } = loadAppsScriptStandings();
+
+function loadAppsScriptStandings() {
+  const context = {};
+  vm.createContext(context);
+  vm.runInContext(
+    readFileSync(new URL("../apps-script/Standings.gs", import.meta.url), "utf8"),
+    context,
+    { filename: "apps-script/Standings.gs" }
+  );
+  return {
+    buildStandings: (...args) => JSON.parse(JSON.stringify(context.buildStandings(...args)))
+  };
+}
 
 test("sorts riders by points and marks missing volunteer days", () => {
   const standings = buildStandings({
