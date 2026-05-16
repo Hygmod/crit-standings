@@ -7,6 +7,8 @@
       "id": "cat-1-2-3",
       "label": "Cat 1/2/3",
       "sheetName": "1/2/3",
+      "color": "#f46524",
+      "textColor": "#1f252b",
       "firstNameOnly": false,
       "raceDates": ["5/5", "5/12"],
       "riders": [
@@ -44,6 +46,8 @@
       "id": "kids",
       "label": "Kids",
       "sheetName": "Kids",
+      "color": "#8bc34a",
+      "textColor": "#1f252b",
       "firstNameOnly": true,
       "raceDates": ["5/5"],
       "riders": [

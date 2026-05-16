@@ -62,12 +62,20 @@ h2 {
 }
 
 .table-region {
+  --category-color: var(--ink);
+  --category-text-color: #ffffff;
   margin-top: 22px;
   width: 100%;
 }
 
+.table-region h2 {
+  border-left: 6px solid var(--category-color);
+  padding-left: 10px;
+}
+
 .table-scroll {
   border: 1px solid var(--line);
+  border-top: 3px solid var(--category-color);
   overflow-x: auto;
   width: 100%;
 }
@@ -87,8 +95,8 @@ td {
 }
 
 th {
-  background: var(--ink);
-  color: white;
+  background: var(--category-color);
+  color: var(--category-text-color);
   font-size: 0.82rem;
   text-transform: uppercase;
 }
