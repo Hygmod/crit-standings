@@ -36,6 +36,7 @@ jobs:
       - name: Build standings data
         run: npm run build:data
         env:
+          GOOGLE_SHEET_ID: ${{ vars.GOOGLE_SHEET_ID }}
           SPREADSHEET_ID: ${{ vars.SPREADSHEET_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
 
