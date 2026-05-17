@@ -57,7 +57,7 @@
           "lastName": "",
           "raceNumber": "12",
           "total": 5,
-          "volunteerDays": 2,
+          "volunteerDays": 0,
           "provisional": false,
           "results": [{ "date": "5/5", "value": "5" }],
           "rank": 1

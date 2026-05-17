@@ -94,4 +94,4 @@ The Weebly page should not need edits after that unless the linked standings URL
 - Categories are published only after at least one rider has a points result recorded.
 - Adult categories show first name, last name, racer number, points, volunteer count, and race results.
 - Kids show first name, racer number, points, volunteer count, and race results.
-- Riders with fewer than two volunteer days show an asterisk.
+- Adult riders with fewer than two volunteer days show an asterisk. Kids are exempt from the volunteer requirement and never show an asterisk.
