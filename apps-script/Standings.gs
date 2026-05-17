@@ -4,7 +4,7 @@ var CATEGORY_CONFIG = [
   { sheetName: "B's", label: "B's", color: "#78909c", textColor: "#1f252b" },
   { sheetName: "Women", label: "Women", color: "#ef6767", textColor: "#1f252b" },
   { sheetName: "Masters", label: "Masters", color: "#f7cb4d", textColor: "#1f252b" },
-  { sheetName: "Kids", label: "Kids", color: "#8bc34a", textColor: "#1f252b", firstNameOnly: true }
+  { sheetName: "Kids", label: "Kids", color: "#8bc34a", textColor: "#1f252b", firstNameOnly: true, volunteerExempt: true }
 ];
 
 function buildStandings(valuesBySheet, generatedAt) {
@@ -73,7 +73,7 @@ function buildRider(row, raceDates, config) {
     raceNumber: raceNumber,
     total: total,
     volunteerDays: volunteerDays,
-    provisional: volunteerDays < 2,
+    provisional: config.volunteerExempt ? false : volunteerDays < 2,
     results: raceDates.map(function(date, offset) {
       return {
         date: date,

@@ -57,6 +57,22 @@ test("publishes kids by first name only", () => {
   assert.equal(kids.riders[0].raceNumber, "12");
 });
 
+test("kids are exempt from the volunteer asterisk", () => {
+  const standings = buildStandings({
+    Kids: [
+      ["Chico Airport Crit Standings"],
+      ["Kids"],
+      [""],
+      ["Last Name", "First Name", "Racer #", "Total", "Vol", "5/5"],
+      ["Example", "Sam", "12", "5", "0", "5"]
+    ]
+  }, "2026-05-15T00:00:00.000Z");
+
+  const kids = standings.categories.find((item) => item.sheetName === "Kids");
+  assert.equal(kids.riders[0].volunteerDays, 0);
+  assert.equal(kids.riders[0].provisional, false);
+});
+
 test("does not publish roster-only or volunteer-only categories", () => {
   const standings = buildStandings({
     "B's": [
