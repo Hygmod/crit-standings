@@ -54,11 +54,9 @@ These steps happen outside this repo because they require your Google account an
 
 12. Replace `STANDINGS_DATA_URL` in `public/config.js` with the `/exec` URL and commit that change.
 
-For later Apps Script changes, keep the same deployment ID so the public URL does not change:
+For later Apps Script changes, `clasp push` runs automatically (see "Automated Apps Script deploys" below). To make the change live, keep the same deployment ID so the public URL does not change:
 
 ```sh
-clasp push
-clasp version "Describe the change"
 clasp deployments
 clasp redeploy <deploymentId> <version> "Describe the change"
 ```
@@ -69,8 +67,21 @@ In `Hygmod/crit-standings`:
 
 1. Enable GitHub Pages with source set to GitHub Actions.
 2. Run the `Deploy standings` workflow manually once after `public/config.js` contains the real Apps Script `/exec` URL.
+3. Add a `CLASPRC_JSON` repository secret so the `Deploy Apps Script` workflow can authenticate (see below).
 
-The workflow deploys only static files from `public/`. It does not read the private Sheet and it has no schedule.
+The `Deploy standings` workflow deploys only static files from `public/`. It does not read the private Sheet and it has no schedule.
+
+## Automated Apps Script deploys
+
+The `Deploy Apps Script` workflow (`.github/workflows/deploy-apps-script.yml`) runs `clasp push` whenever `apps-script/**` or `.clasp.json` changes on `main`, and can also be triggered manually. It needs the clasp OAuth credentials.
+
+1. On a machine where you have run `clasp login`, open `~/.clasprc.json`.
+2. In `Hygmod/crit-standings`, go to Settings > Secrets and variables > Actions and add a repository secret named `CLASPRC_JSON` with the full contents of that file as the value.
+3. Make sure the Apps Script API is enabled for that Google account at `https://script.google.com/home/usersettings`.
+
+Treat `CLASPRC_JSON` like a password: it grants clasp access to your Apps Script projects. If `clasp push` later fails with an auth error, run `clasp login` again locally and update the secret.
+
+The workflow pushes the script source only. It does not create a new web app version, so the public `/exec` URL keeps serving the previously deployed version until you redeploy.
 
 ## Weebly link
 
