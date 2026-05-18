@@ -44,8 +44,7 @@ These steps happen outside this repo because they require your Google account an
 10. Deploy the web app:
 
    ```sh
-   clasp version "Initial web app"
-   clasp deploy <version> "Initial web app"
+   clasp deploy -d "Initial web app"
    ```
 
    In the Apps Script deployment UI, confirm the deployment is a Web app, executes as you, and allows anyone to access it.
@@ -54,14 +53,15 @@ These steps happen outside this repo because they require your Google account an
 
 12. Replace `STANDINGS_DATA_URL` in `public/config.js` with the `/exec` URL and commit that change.
 
-For later Apps Script changes, keep the same deployment ID so the public URL does not change:
+13. Record the deployment ID for automated deploys:
 
-```sh
-clasp push
-clasp version "Describe the change"
-clasp deployments
-clasp redeploy <deploymentId> <version> "Describe the change"
-```
+   ```sh
+   clasp list-deployments
+   ```
+
+   Copy the ID of the deployment that serves the `/exec` URL above (not the `@HEAD` test deployment). It is needed for the `APPS_SCRIPT_DEPLOYMENT_ID` GitHub variable below.
+
+After this one-time setup, later Apps Script changes are fully automated: merging a change to `apps-script/**` on `main` runs `clasp push` and redeploys the same deployment ID, so the public `/exec` URL stays the same and serves the new code (see "Automated Apps Script deploys" below).
 
 ## One-time GitHub setup
 
@@ -69,8 +69,24 @@ In `Hygmod/crit-standings`:
 
 1. Enable GitHub Pages with source set to GitHub Actions.
 2. Run the `Deploy standings` workflow manually once after `public/config.js` contains the real Apps Script `/exec` URL.
+3. Add the `CLASPRC_JSON` secret and `APPS_SCRIPT_DEPLOYMENT_ID` variable so the `Deploy Apps Script` workflow can authenticate and redeploy (see below).
 
-The workflow deploys only static files from `public/`. It does not read the private Sheet and it has no schedule.
+The `Deploy standings` workflow deploys only static files from `public/`. It does not read the private Sheet and it has no schedule.
+
+## Automated Apps Script deploys
+
+The `Deploy Apps Script` workflow (`.github/workflows/deploy-apps-script.yml`) runs whenever `apps-script/**` or `.clasp.json` changes on `main`, and can also be triggered manually. It runs the tests, then `clasp push`, then redeploys the web app so the public `/exec` URL serves the new code.
+
+It needs two settings under Settings > Secrets and variables > Actions in `Hygmod/crit-standings`:
+
+1. Secret `CLASPRC_JSON`: on a machine where you have run `clasp login`, copy the full contents of `~/.clasprc.json` into a new repository secret with this name.
+2. Variable `APPS_SCRIPT_DEPLOYMENT_ID`: the deployment ID recorded in step 13 of the Apps Script setup. This is a repository variable, not a secret.
+
+Also make sure the Apps Script API is enabled for that Google account at `https://script.google.com/home/usersettings`.
+
+Treat `CLASPRC_JSON` like a password: it grants clasp access to your Apps Script projects. If a deploy fails with an auth error, run `clasp login` again locally and update the secret.
+
+The workflow always redeploys the same deployment ID, so the public `/exec` URL never changes. Do not create a new deployment for routine changes; that would produce a new URL and break `public/config.js`.
 
 ## Weebly link
 
