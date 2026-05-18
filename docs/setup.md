@@ -69,9 +69,18 @@ In `Hygmod/crit-standings`:
 
 1. Enable GitHub Pages with source set to GitHub Actions.
 2. Run the `Deploy standings` workflow manually once after `public/config.js` contains the real Apps Script `/exec` URL.
-3. Add the `CLASPRC_JSON` secret and `APPS_SCRIPT_DEPLOYMENT_ID` variable so the `Deploy Apps Script` workflow can authenticate and redeploy (see below).
+3. Run the `Snapshot standings` workflow manually once so the first `public/data/standings.json` snapshot exists. After that it runs automatically on a schedule.
+4. Add the `CLASPRC_JSON` secret and `APPS_SCRIPT_DEPLOYMENT_ID` variable so the `Deploy Apps Script` workflow can authenticate and redeploy (see below).
 
 The `Deploy standings` workflow deploys only static files from `public/`. It does not read the private Sheet and it has no schedule.
+
+## Standings snapshot
+
+`Snapshot standings` (`.github/workflows/snapshot-standings.yml`) is what keeps the page fast. Every 15 minutes (and on demand) it fetches the public `/exec` JSON, validates it, and commits the result to `public/data/standings.json`, then deploys Pages when the snapshot changed.
+
+The frontend loads that static snapshot first, so the page paints immediately from the CDN instead of waiting on a live Google Sheet read. It then revalidates against the live `/exec` endpoint in the background and swaps in fresher numbers if any exist, so results stay current between snapshots without blocking the initial load.
+
+The workflow only reads the already-public `/exec` JSON, so it needs no extra secrets. If `public/data/standings.json` is ever missing, the page falls back to the live endpoint automatically.
 
 ## Automated Apps Script deploys
 

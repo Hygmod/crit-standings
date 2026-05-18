@@ -1,0 +1,86 @@
+name: Snapshot standings
+
+# Pulls the live Apps Script JSON on a schedule and publishes it as a static
+# file so visitors never wait on a live Google Sheet read when the page loads.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch live standings
+        run: |
+          url=$(grep -oE 'https://script\.google\.com[^"]*' public/config.js | head -n1)
+          if [ -z "$url" ]; then
+            echo "Could not find the Apps Script URL in public/config.js." >&2
+            exit 1
+          fi
+          echo "Fetching standings from $url"
+          curl -fsSL --retry 4 --retry-delay 5 --max-time 60 "$url" -o /tmp/standings.json
+
+      - name: Validate snapshot
+        run: |
+          node -e '
+            const fs = require("fs");
+            const data = JSON.parse(fs.readFileSync("/tmp/standings.json", "utf8"));
+            if (data.error) {
+              console.error("Endpoint returned an error: " + data.error);
+              process.exit(1);
+            }
+            if (!Array.isArray(data.categories)) {
+              console.error("Response is missing a categories array.");
+              process.exit(1);
+            }
+            console.log("Snapshot valid: " + data.categories.length + " categories.");
+          '
+
+      - name: Commit snapshot if changed
+        id: commit
+        run: |
+          mkdir -p public/data
+          cp /tmp/standings.json public/data/standings.json
+          git add public/data/standings.json
+          if git diff --cached --quiet -- public/data/standings.json; then
+            echo "No standings changes."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "Update standings snapshot"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure Pages
+        if: steps.commit.outputs.changed == 'true'
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: steps.commit.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        if: steps.commit.outputs.changed == 'true'
+        uses: actions/deploy-pages@v4

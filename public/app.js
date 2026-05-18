@@ -1,26 +1,69 @@
-import { STANDINGS_DATA_URL } from "./config.js";
+import { STANDINGS_DATA_URL, STANDINGS_SNAPSHOT_URL } from "./config.js";
 
 const updatedAt = document.querySelector("#updated-at");
 const tables = document.querySelector("#standings-tables");
 
 try {
-  const standings = await loadStandings(STANDINGS_DATA_URL);
-  if (standings.error) {
-    throw new Error(standings.error);
-  }
-  updatedAt.textContent = `Updated ${formatDateTime(standings.generatedAt)}`;
-  renderStandings(standings.categories);
+  const standings = await loadStandings();
+  applyStandings(standings);
+  revalidate(standings);
 } catch (error) {
   console.error(error);
   updatedAt.textContent = "Unable to load standings.";
   renderError();
 }
 
-async function loadStandings(url) {
-  if (usesJsonp(url)) {
-    return loadJsonp(url);
+// Fast path: render the static snapshot served from the same CDN as the
+// page. Only fall back to the slower live endpoint if the snapshot is missing.
+async function loadStandings() {
+  try {
+    return ensureValid(await fetchJson(STANDINGS_SNAPSHOT_URL));
+  } catch (snapshotError) {
+    console.warn("Standings snapshot unavailable; querying live endpoint.", snapshotError);
+    return ensureValid(await loadLive());
   }
-  const response = await fetch(withCacheBust(url));
+}
+
+// The snapshot can be a few minutes stale. Once it is on screen, quietly ask
+// the live endpoint for fresher numbers and swap them in if they exist.
+async function revalidate(current) {
+  try {
+    const live = ensureValid(await loadLive());
+    if (isNewer(live.generatedAt, current.generatedAt)) {
+      applyStandings(live);
+    }
+  } catch (error) {
+    console.warn("Live standings refresh failed; keeping snapshot.", error);
+  }
+}
+
+function applyStandings(standings) {
+  updatedAt.textContent = `Updated ${formatDateTime(standings.generatedAt)}`;
+  renderStandings(standings.categories);
+}
+
+function ensureValid(payload) {
+  if (!payload || payload.error) {
+    throw new Error(payload && payload.error ? payload.error : "Standings response was empty.");
+  }
+  return payload;
+}
+
+function isNewer(candidate, current) {
+  const next = Date.parse(candidate);
+  const have = Date.parse(current);
+  return Number.isFinite(next) && (!Number.isFinite(have) || next > have);
+}
+
+function loadLive() {
+  if (usesJsonp(STANDINGS_DATA_URL)) {
+    return loadJsonp(STANDINGS_DATA_URL);
+  }
+  return fetchJson(withCacheBust(STANDINGS_DATA_URL));
+}
+
+async function fetchJson(url) {
+  const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Unable to load standings: ${response.status}`);
   }
