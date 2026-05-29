@@ -219,14 +219,10 @@ tbody tr:nth-child(even) td.race-result.is-latest {
   background: #ffeccc;
 }
 
-/* Find-a-rider: lift matches, fade the rest. */
-tr.is-match {
-  outline: 2px solid var(--accent);
-  outline-offset: -2px;
-}
-
-tr.is-dim {
-  opacity: 0.25;
+/* Find-a-rider: filter to matching rows in place rather than scrolling to them,
+   so the page stays put while typing. Non-matches are removed from the flow. */
+tbody tr.is-hidden {
+  display: none;
 }
 
 /* Keep position and name in view while paging through weeks (wide screens). */
