@@ -102,6 +102,10 @@ function applyFilter() {
   if (searchEmpty) {
     searchEmpty.hidden = !query || matchCount > 0;
   }
+
+  // Hiding rows can change the content-driven width of the frozen Pos/name
+  // columns, so re-measure the sticky offsets against what's now visible.
+  updateStickyOffsets();
 }
 
 function ensureValid(payload) {
@@ -191,7 +195,15 @@ function renderStandings(categories) {
 // Re-run on resize since column widths shift with the viewport.
 function updateStickyOffsets() {
   tables.querySelectorAll(".table-region").forEach((region) => {
-    const firstRow = region.querySelector("tbody tr");
+    // A hidden region (and any cell inside it) measures as zero width; its
+    // offsets get recomputed when the filter clears and it becomes visible.
+    if (region.classList.contains("is-hidden")) {
+      return;
+    }
+    // Measure the first *visible* row: filtering can hide the original first
+    // row, and a display:none cell reports a width of 0, which would zero the
+    // offsets and break the frozen columns.
+    const firstRow = region.querySelector("tbody tr:not(.is-hidden)");
     if (!firstRow) {
       return;
     }
