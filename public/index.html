@@ -18,8 +18,18 @@
       </header>
 
       <section class="notice" aria-label="Volunteer eligibility note">
-        <strong>"V"</strong> as score indicates volunteer duty. <strong>*</strong> Rider has fewer than two volunteer days recorded.
+        <strong>"V"</strong> as score indicates volunteer duty. <strong>*</strong> Rider has fewer than two volunteer days recorded. <strong>▲▼</strong> show movement since the previous race.
       </section>
+
+      <div class="toolbar">
+        <input
+          id="rider-search"
+          type="search"
+          inputmode="search"
+          autocomplete="off"
+          placeholder="Find a rider by name or number"
+          aria-label="Find a rider by name or number">
+      </div>
 
       <section id="standings-tables" aria-live="polite"></section>
     </main>
