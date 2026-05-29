@@ -3,6 +3,7 @@ import { STANDINGS_DATA_URL, STANDINGS_SNAPSHOT_URL } from "./config.js";
 const updatedAt = document.querySelector("#updated-at");
 const tables = document.querySelector("#standings-tables");
 const searchInput = document.querySelector("#rider-search");
+const searchEmpty = document.querySelector("#search-empty");
 
 const SEARCH_STORAGE_KEY = "crit-standings-search";
 let activeQuery = "";
@@ -49,9 +50,11 @@ function applyStandings(standings) {
   applyFilter();
 }
 
-// Let a racer find themselves: highlight matching rows, dim the rest, hide
-// categories with no match, and scroll to the first hit. The query persists so
-// a follower's row stays highlighted on return visits and across refreshes.
+// Let a racer find themselves: keep only the rows that match in place, hide the
+// rest along with any category that has no match. Filtering happens where the
+// rows already are, so the page never jumps and the search box keeps focus as
+// more characters are typed. The query persists so a follower's row stays in
+// view on return visits and across refreshes.
 function setupSearch() {
   if (!searchInput) {
     return;
@@ -72,34 +75,37 @@ function setupSearch() {
     } catch (error) {
       // Ignore storage failures; filtering does not depend on persistence.
     }
-    applyFilter({ scroll: true });
+    applyFilter();
   });
 }
 
-function applyFilter({ scroll = false } = {}) {
+function applyFilter() {
   const query = activeQuery;
   tables.classList.toggle("is-filtering", Boolean(query));
-  let firstMatch = null;
+  let matchCount = 0;
 
   tables.querySelectorAll(".table-region").forEach((region) => {
     let regionHasMatch = false;
     region.querySelectorAll("tbody tr").forEach((row) => {
       const match = !query || (row.dataset.search || "").includes(query);
-      row.classList.toggle("is-match", Boolean(query) && match);
-      row.classList.toggle("is-dim", Boolean(query) && !match);
+      row.classList.toggle("is-hidden", Boolean(query) && !match);
       if (match) {
         regionHasMatch = true;
-        if (query && !firstMatch) {
-          firstMatch = row;
+        if (query) {
+          matchCount += 1;
         }
       }
     });
     region.classList.toggle("is-hidden", Boolean(query) && !regionHasMatch);
   });
 
-  if (scroll && firstMatch) {
-    firstMatch.scrollIntoView({ behavior: "smooth", block: "center" });
+  if (searchEmpty) {
+    searchEmpty.hidden = !query || matchCount > 0;
   }
+
+  // Hiding rows can change the content-driven width of the frozen Pos/name
+  // columns, so re-measure the sticky offsets against what's now visible.
+  updateStickyOffsets();
 }
 
 function ensureValid(payload) {
@@ -189,7 +195,15 @@ function renderStandings(categories) {
 // Re-run on resize since column widths shift with the viewport.
 function updateStickyOffsets() {
   tables.querySelectorAll(".table-region").forEach((region) => {
-    const firstRow = region.querySelector("tbody tr");
+    // A hidden region (and any cell inside it) measures as zero width; its
+    // offsets get recomputed when the filter clears and it becomes visible.
+    if (region.classList.contains("is-hidden")) {
+      return;
+    }
+    // Measure the first *visible* row: filtering can hide the original first
+    // row, and a display:none cell reports a width of 0, which would zero the
+    // offsets and break the frozen columns.
+    const firstRow = region.querySelector("tbody tr:not(.is-hidden)");
     if (!firstRow) {
       return;
     }
