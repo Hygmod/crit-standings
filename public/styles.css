@@ -244,9 +244,16 @@ tr.is-dim {
     min-width: 56px;
   }
 
-  th.sticky-name,
-  td.sticky-name {
-    left: 56px;
+  /* Offsets are measured at runtime (updateStickyOffsets) because the Pos and
+     name columns size to their content. Fallbacks cover the first paint. */
+  th.sticky-col-1,
+  td.sticky-col-1 {
+    left: var(--sticky-col1-left, 56px);
+  }
+
+  th.sticky-col-2,
+  td.sticky-col-2 {
+    left: var(--sticky-col2-left, 176px);
   }
 
   td.pos,

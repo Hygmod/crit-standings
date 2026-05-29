@@ -180,7 +180,31 @@ function renderStandings(categories) {
   }
 
   tables.replaceChildren(...categories.map(renderCategory));
+  updateStickyOffsets();
 }
+
+// The sticky Pos and name columns have content-driven widths, so the second
+// name column can't use a hard-coded left offset. Measure the frozen columns
+// after layout and expose their widths as CSS variables the stylesheet reads.
+// Re-run on resize since column widths shift with the viewport.
+function updateStickyOffsets() {
+  tables.querySelectorAll(".table-region").forEach((region) => {
+    const firstRow = region.querySelector("tbody tr");
+    if (!firstRow) {
+      return;
+    }
+    const posWidth = measureWidth(firstRow.querySelector(".pos"));
+    const name1Width = measureWidth(firstRow.querySelector(".sticky-col-1"));
+    region.style.setProperty("--sticky-col1-left", `${posWidth}px`);
+    region.style.setProperty("--sticky-col2-left", `${posWidth + name1Width}px`);
+  });
+}
+
+function measureWidth(cell) {
+  return cell ? cell.getBoundingClientRect().width : 0;
+}
+
+window.addEventListener("resize", updateStickyOffsets);
 
 function renderError() {
   const message = document.createElement("p");
@@ -210,15 +234,19 @@ function renderCategory(category) {
   const body = document.createElement("tbody");
 
   const nameHeaders = category.firstNameOnly ? ["First Name"] : ["Last Name", "First Name"];
+  // Only weeks that actually have results, in schedule order. Future scheduled
+  // weeks with no marks yet are dropped so the table never leads with an empty
+  // column tagged "Latest".
+  const completed = completedDates(category);
   // Newest race first so the most relevant column is visible without scrolling.
-  const displayDates = category.raceDates.slice().reverse();
+  const displayDates = completed.slice().reverse();
   const latestDate = displayDates[0];
-  const movement = computeMovement(category);
+  const movement = computeMovement(category, completed);
 
   const headerRow = document.createElement("tr");
   appendHeader(headerRow, "Pos", "pos");
   nameHeaders.forEach((label, index) => {
-    appendHeader(headerRow, label, index === 0 ? "sticky-name" : "");
+    appendHeader(headerRow, label, `sticky-name sticky-col-${index + 1}`);
   });
   appendHeader(headerRow, "Racer #", "");
   appendHeader(headerRow, "Total", "");
@@ -256,12 +284,12 @@ function renderCategory(category) {
     row.append(pos);
 
     if (!category.firstNameOnly) {
-      addCell(row, rider.lastName || "-", "name sticky-name", "Last Name");
+      addCell(row, rider.lastName || "-", "name sticky-name sticky-col-1", "Last Name");
     }
     addCell(
       row,
       `${rider.firstName || rider.displayName}${rider.provisional ? "*" : ""}`,
-      category.firstNameOnly ? "name sticky-name" : "name",
+      category.firstNameOnly ? "name sticky-name sticky-col-1" : "name sticky-name sticky-col-2",
       "First Name"
     );
     addCell(row, rider.raceNumber || "-", "number", "Racer #");
@@ -285,9 +313,8 @@ function renderCategory(category) {
 // Movement since the previous race, derived from the current standings alone:
 // subtract the latest week's points to reconstruct last week's ranking, then
 // compare. No historical snapshot needed.
-function computeMovement(category) {
+function computeMovement(category, dates) {
   const result = new Map();
-  const dates = category.raceDates;
   if (dates.length < 2) {
     return result;
   }
@@ -337,6 +364,17 @@ function computeMovement(category) {
   });
 
   return result;
+}
+
+// A week counts as completed once any rider in the category has a mark for it.
+// Returned in the category's original schedule order.
+function completedDates(category) {
+  return category.raceDates.filter((date) =>
+    category.riders.some((rider) => {
+      const entry = rider.results.find((item) => item.date === date);
+      return hasMark(entry && entry.value);
+    })
+  );
 }
 
 function parsePoints(value) {
