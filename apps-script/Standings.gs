@@ -25,11 +25,11 @@ function buildStandings(valuesBySheet, generatedAt) {
 
 function buildCategory(config, rows) {
   var headers = rows[3] || [];
-  var raceDates = headers.slice(5).filter(Boolean);
+  var columns = resolveColumns(headers);
   var riders = rows
     .slice(4)
     .map(function(row) {
-      return buildRider(row, raceDates, config);
+      return buildRider(row, columns, config);
     })
     .filter(Boolean)
     .sort(compareRiders)
@@ -45,13 +45,46 @@ function buildCategory(config, rows) {
     color: config.color,
     textColor: config.textColor,
     firstNameOnly: Boolean(config.firstNameOnly),
-    raceDates: raceDates,
+    raceDates: columns.raceDates.map(function(column) { return column.date; }),
     hasResults: riders.some(hasResult),
     riders: riders
   };
 }
 
-function buildRider(row, raceDates, config) {
+// Resolve column positions from the header row by name rather than assuming a
+// fixed order. Categories label columns "Total" and "Vol", but some sheets swap
+// them (Masters) or omit "Vol" entirely (Kids). Everything after the metadata
+// and Total/Vol columns is treated as a race-date column.
+function resolveColumns(headers) {
+  var totalIndex = -1;
+  var volIndex = -1;
+  for (var i = 0; i < headers.length; i++) {
+    var name = clean(headers[i]).toLowerCase();
+    if (totalIndex === -1 && name === "total") {
+      totalIndex = i;
+    } else if (volIndex === -1 && name === "vol") {
+      volIndex = i;
+    }
+  }
+  if (totalIndex === -1) {
+    totalIndex = 3;
+  }
+
+  var raceDates = [];
+  for (var j = 3; j < headers.length; j++) {
+    if (j === totalIndex || j === volIndex) {
+      continue;
+    }
+    var date = clean(headers[j]);
+    if (date) {
+      raceDates.push({ index: j, date: date });
+    }
+  }
+
+  return { totalIndex: totalIndex, volIndex: volIndex, raceDates: raceDates };
+}
+
+function buildRider(row, columns, config) {
   var lastName = clean(row[0]);
   var firstName = clean(row[1]);
   var raceNumber = clean(row[2]);
@@ -60,8 +93,8 @@ function buildRider(row, raceDates, config) {
     return null;
   }
 
-  var total = toNumber(row[3]);
-  var volunteerDays = toNumber(row[4]);
+  var total = toNumber(row[columns.totalIndex]);
+  var volunteerDays = columns.volIndex === -1 ? 0 : toNumber(row[columns.volIndex]);
   var displayName = config.firstNameOnly
     ? firstName || "Rider"
     : [firstName, lastName].filter(Boolean).join(" ");
@@ -74,10 +107,10 @@ function buildRider(row, raceDates, config) {
     total: total,
     volunteerDays: volunteerDays,
     provisional: config.volunteerExempt ? false : volunteerDays < 2,
-    results: raceDates.map(function(date, offset) {
+    results: columns.raceDates.map(function(column) {
       return {
-        date: date,
-        value: clean(row[offset + 5])
+        date: column.date,
+        value: clean(row[column.index])
       };
     })
   };
