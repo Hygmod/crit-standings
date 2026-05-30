@@ -41,6 +41,50 @@ test("sorts riders by points and marks missing volunteer days", () => {
   assert.equal(category.riders[2].displayName, "John Zaine");
 });
 
+test("reads masters even when the Total and Vol columns are swapped", () => {
+  const standings = buildStandings({
+    Masters: [
+      ["Chico Airport Crit Standings"],
+      ["Masters"],
+      [""],
+      ["Last Name", "First Name", "Racer #", "Vol", "Total", "5/5", "5/12"],
+      ["Wilson", "Bob", "235", "2", "60", "V", "30"],
+      ["Riley", "Skip", "240", "1", "21", "V", ""]
+    ]
+  }, "2026-05-15T00:00:00.000Z");
+
+  const masters = standings.categories.find((item) => item.sheetName === "Masters");
+  const bob = masters.riders.find((rider) => rider.displayName === "Bob Wilson");
+  assert.equal(bob.total, 60);
+  assert.equal(bob.volunteerDays, 2);
+  assert.equal(bob.provisional, false);
+  assert.deepEqual(bob.results, [
+    { date: "5/5", value: "V" },
+    { date: "5/12", value: "30" }
+  ]);
+});
+
+test("treats a missing Vol column as zero and keeps every race date", () => {
+  const standings = buildStandings({
+    Kids: [
+      ["Chico Airport Crit Standings"],
+      ["Kids"],
+      [""],
+      ["Last Name", "First Name", "Racer #", "Total", "5/5", "5/12"],
+      ["Harck", "Leo", "", "65", "20", "25"]
+    ]
+  }, "2026-05-15T00:00:00.000Z");
+
+  const kids = standings.categories.find((item) => item.sheetName === "Kids");
+  assert.deepEqual(kids.raceDates, ["5/5", "5/12"]);
+  assert.equal(kids.riders[0].total, 65);
+  assert.equal(kids.riders[0].volunteerDays, 0);
+  assert.deepEqual(kids.riders[0].results, [
+    { date: "5/5", value: "20" },
+    { date: "5/12", value: "25" }
+  ]);
+});
+
 test("publishes kids by first name only", () => {
   const standings = buildStandings({
     Kids: [
