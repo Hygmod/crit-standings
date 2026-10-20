@@ -1,4 +1,5 @@
 import { STANDINGS_DATA_URL, STANDINGS_SNAPSHOT_URL } from "./config.js";
+import { ensureValid, isNewer } from "./standings-data.js";
 
 const updatedAt = document.querySelector("#updated-at");
 const tables = document.querySelector("#standings-tables");
@@ -106,19 +107,6 @@ function applyFilter() {
   // Hiding rows can change the content-driven width of the frozen Pos/name
   // columns, so re-measure the sticky offsets against what's now visible.
   updateStickyOffsets();
-}
-
-function ensureValid(payload) {
-  if (!payload || payload.error) {
-    throw new Error(payload && payload.error ? payload.error : "Standings response was empty.");
-  }
-  return payload;
-}
-
-function isNewer(candidate, current) {
-  const next = Date.parse(candidate);
-  const have = Date.parse(current);
-  return Number.isFinite(next) && (!Number.isFinite(have) || next > have);
 }
 
 function loadLive() {
